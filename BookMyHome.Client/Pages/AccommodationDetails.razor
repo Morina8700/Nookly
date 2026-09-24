@@ -22,7 +22,7 @@ else
         <article class="detail-card">
             @if (accommodation.Images.Any())
             {
-                <img src="@accommodation.Images[currentImageIndex].ImageUrl"
+                <img src="@GetImageUrl(accommodation.Images[currentImageIndex].ImageUrl)"
                      alt="@accommodation.Name"
                      class="detail-hero" />
                 @if (accommodation.Images.Count > 1)
@@ -101,4 +101,12 @@ else
     }
 
     private void GoBack() => NavigationManager.NavigateTo("/accommodations");
+
+    private static string GetImageUrl(string imageUrl)
+{
+    if (imageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+        return imageUrl;
+
+    return $"https://localhost:7096{imageUrl}";
+}
 }

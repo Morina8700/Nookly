@@ -32,7 +32,7 @@
                 <a href="@($"/accommodations/{accommodation.AccommodationId}")" class="property-link">
                     @if (accommodation.Images.Any())
                     {
-                        <img src="@accommodation.Images.First().ImageUrl" class="property-card-image" alt="@accommodation.Name" />
+                        <img src="@GetImageUrl(accommodation.Images.First().ImageUrl)" class="property-card-image" alt="@accommodation.Name" />
                     }
                     else
                     {
@@ -78,4 +78,12 @@
         accommodations =
             await AccommodationService.GetAllAsync();
     }
+
+    private static string GetImageUrl(string imageUrl)
+{
+    if (imageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+        return imageUrl;
+
+    return $"https://localhost:7096{imageUrl}";
+}
 }

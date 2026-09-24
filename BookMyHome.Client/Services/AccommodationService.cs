@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using Microsoft.AspNetCore.Components.Forms;
 using BookMyHome.Client.Models;
 
 namespace BookMyHome.Client.Services;
@@ -34,6 +36,33 @@ public class AccommodationService
             "api/accommodations",
             accommodation);
     }
+
+    public async Task<HttpResponseMessage> UploadImagesAsync(
+    Guid accommodationId,
+    IReadOnlyList<IBrowserFile> files)
+{
+    using var formData = new MultipartFormDataContent();
+
+    foreach (var file in files)
+    {
+        var stream = file.OpenReadStream(
+            maxAllowedSize: 10 * 1024 * 1024);
+
+        var fileContent = new StreamContent(stream);
+
+        fileContent.Headers.ContentType =
+            new MediaTypeHeaderValue(file.ContentType);
+
+        formData.Add(
+            fileContent,
+            "Files",
+            file.Name);
+    }
+
+    return await _httpClient.PostAsync(
+        $"api/accommodations/{accommodationId}/images/upload",
+        formData);
+}
 
     public async Task<HttpResponseMessage> UpdateAsync(
         Guid id,

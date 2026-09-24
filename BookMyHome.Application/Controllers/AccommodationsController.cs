@@ -2,7 +2,6 @@
 using BookMyHome.Domain.Models;
 using BookMyHome.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
-
 namespace BookMyHome.Application.Controllers
 {
     [ApiController]
@@ -168,9 +167,9 @@ namespace BookMyHome.Application.Controllers
 
         [HttpDelete("{id:guid}/images/{imageId:guid}")]
         public async Task<IActionResult> DeleteImage(
-    Guid id,
-    Guid imageId)
-        {
+            Guid id,
+            Guid imageId)
+            {
             var accommodation =
                 await _repository.GetByIdAsync(id);
 
@@ -180,6 +179,96 @@ namespace BookMyHome.Application.Controllers
             await _repository.DeleteImageAsync(imageId);
 
             return NoContent();
+            }
+
+            [HttpPost("{id:guid}/images/upload")]
+[RequestSizeLimit(100 * 1024 * 1024)]
+public async Task<ActionResult> UploadImages(
+    Guid id,
+    [FromForm] UploadAccommodationImagesRequest request,
+    IWebHostEnvironment environment)
+{
+    var accommodation = await _repository.GetByIdAsync(id);
+
+    if (accommodation == null)
+        return NotFound();
+
+    if (request.Files.Count == 0)
+        return BadRequest("Select at least one image.");
+
+    if (request.Files.Count > 10)
+        return BadRequest("You can upload a maximum of 10 images at a time.");
+
+    var allowedTypes = new HashSet<string>(
+        StringComparer.OrdinalIgnoreCase)
+    {
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    };
+
+    var webRootPath = environment.WebRootPath
+        ?? Path.Combine(environment.ContentRootPath, "wwwroot");
+
+    var uploadDirectory = Path.Combine(
+        webRootPath,
+        "uploads",
+        "accommodations",
+        id.ToString("N"));
+
+    Directory.CreateDirectory(uploadDirectory);
+
+    foreach (var file in request.Files)
+    {
+        if (file.Length == 0)
+            return BadRequest("Empty files cannot be uploaded.");
+
+        if (file.Length > 10 * 1024 * 1024)
+            return BadRequest(
+                $"'{file.FileName}' is larger than 10 MB.");
+
+        if (!allowedTypes.Contains(file.ContentType))
+            return BadRequest(
+                $"'{file.FileName}' is not a supported image type.");
+
+        var extension = Path.GetExtension(file.FileName)
+            .ToLowerInvariant();
+
+        if (extension != ".jpg"
+            && extension != ".jpeg"
+            && extension != ".png"
+            && extension != ".webp")
+        {
+            return BadRequest(
+                $"'{file.FileName}' is not a supported image type.");
         }
+
+        var storedFileName =
+            $"{Guid.NewGuid():N}{extension}";
+
+        var filePath = Path.Combine(
+            uploadDirectory,
+            storedFileName);
+
+        await using var stream =
+            System.IO.File.Create(filePath);
+
+        await file.CopyToAsync(stream);
+
+        var imageUrl =
+            $"/uploads/accommodations/{id:N}/{storedFileName}";
+
+        await _repository.AddImageAsync(
+            id,
+            imageUrl);
+    }
+
+    var updatedAccommodation =
+        await _repository.GetByIdAsync(id);
+
+    return Ok(updatedAccommodation);
+}
+
+       
     }
 }

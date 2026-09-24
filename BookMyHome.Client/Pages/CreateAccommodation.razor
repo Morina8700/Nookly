@@ -2,6 +2,7 @@
 
 @using BookMyHome.Client.Models
 @using BookMyHome.Client.Services
+@using Microsoft.AspNetCore.Components.Forms
 
 @inject AccommodationService AccommodationService
 @inject NavigationManager NavigationManager
@@ -39,6 +40,32 @@
                        @bind-Value="model.Description"
                        rows="5" />
     </div>
+
+    <div class="field">
+    <label class="form-label">Property images</label>
+
+    <InputFile OnChange="OnFilesSelected"
+               multiple
+               accept="image/jpeg,image/png,image/webp" />
+
+    <small class="form-text text-muted">
+        Select up to 10 JPG, PNG, or WebP images. Maximum 10 MB per image.
+    </small>
+
+    @if (selectedFiles.Count > 0)
+    {
+        <p class="mt-2">
+            @selectedFiles.Count image(s) selected.
+        </p>
+
+        <ul>
+            @foreach (var file in selectedFiles)
+            {
+                <li>@file.Name</li>
+            }
+        </ul>
+    }
+</div>
 
     <h2>Property facts</h2>
     <div class="field"><label class="form-label">Floor area (m²)</label><InputNumber class="form-control" @bind-Value="model.FloorAreaSquareMeters" /></div>
@@ -82,6 +109,8 @@
 </EditForm></div>
 
 @code {
+
+    
     private CreateAccommodationDto model = new()
     {
         // Midlertidig test-host indtil vi laver login/Host UI
@@ -91,22 +120,58 @@
 
     private string? errorMessage;
 
-    private async Task HandleCreate()
+private IReadOnlyList<IBrowserFile> selectedFiles =
+    Array.Empty<IBrowserFile>();
+
+        private void OnFilesSelected(InputFileChangeEventArgs args)
+{
+    selectedFiles = args.GetMultipleFiles(10);
+}
+
+private async Task HandleCreate()
+{
+    errorMessage = null;
+
+    var response =
+        await AccommodationService.CreateAsync(model);
+
+    if (!response.IsSuccessStatusCode)
     {
-        errorMessage = null;
-
-        var response =
-            await AccommodationService.CreateAsync(model);
-
-        if (response.IsSuccessStatusCode)
-        {
-            NavigationManager.NavigateTo("/accommodations");
-            return;
-        }
-
         errorMessage =
             await response.Content.ReadAsStringAsync();
+
+        return;
     }
+
+    var accommodation =
+        await response.Content.ReadFromJsonAsync<AccommodationDto>();
+
+    if (accommodation == null)
+    {
+        errorMessage =
+            "The accommodation was created, but its ID could not be read.";
+
+        return;
+    }
+
+    if (selectedFiles.Count > 0)
+    {
+        var imageResponse =
+            await AccommodationService.UploadImagesAsync(
+                accommodation.AccommodationId,
+                selectedFiles);
+
+        if (!imageResponse.IsSuccessStatusCode)
+        {
+            errorMessage =
+                "The accommodation was created, but the images could not be uploaded.";
+
+            return;
+        }
+    }
+
+    NavigationManager.NavigateTo("/accommodations");
+}
 
     private void Cancel()
     {
