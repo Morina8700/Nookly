@@ -6,7 +6,7 @@
 @inject AccommodationService AccommodationService
 @inject NavigationManager NavigationManager
 
-<h1>Edit Accommodation</h1>
+<header class="page-header"><div><h1>Edit Property</h1><p>Update the details of this accommodation.</p></div></header>
 
 @if (isLoading)
 {
@@ -14,31 +14,31 @@
 }
 else
 {
-    <EditForm Model="model"
+    <div class="page-body"><EditForm class="form-card" Model="model"
               OnValidSubmit="HandleUpdate">
 
-        <div class="mb-3">
+        <div class="field">
             <label class="form-label">Name</label>
 
             <InputText class="form-control"
                        @bind-Value="model.Name" />
         </div>
 
-        <div class="mb-3">
+        <div class="field">
             <label class="form-label">Address</label>
 
             <InputText class="form-control"
                        @bind-Value="model.Address" />
         </div>
 
-        <div class="mb-3">
+        <div class="field">
             <label class="form-label">Price per night</label>
 
             <InputNumber class="form-control"
                          @bind-Value="model.PricePerNight" />
         </div>
 
-        <div class="mb-3">
+        <div class="field">
             <label class="form-label">Description</label>
 
             <InputTextArea class="form-control"
@@ -64,7 +64,7 @@ else
             Cancel
         </button>
 
-    </EditForm>
+    </EditForm></div>
 }
 
 @code {

@@ -6,30 +6,33 @@
 @inject BookingService BookingService
 @inject AccommodationService AccommodationService
 
-<h1>Bookings</h1>
+<header class="page-header">
+    <div>
+        <h1>Bookings</h1>
+        <p>@(bookings?.Count ?? 0) reservations</p>
+    </div>
+    <a href="/bookings/create" class="btn btn-primary">＋ Create Booking</a>
+</header>
 
-<a href="/bookings/create"
-   class="btn btn-primary mb-3">
-    Create Booking
-</a>
-
-@if (bookings == null)
-{
-    <p>Loading...</p>
-}
-else if (bookings.Count == 0)
-{
-    <p>No bookings found.</p>
-}
-else
-{
-    <table class="table">
+<div class="page-body">
+    @if (bookings == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (bookings.Count == 0)
+    {
+        <div class="table-card empty-state">No bookings found.</div>
+    }
+    else
+    {
+        <div class="table-card">
+            <table class="table">
         <thead>
             <tr>
-                
                 <th>Start date</th>
                 <th>End date</th>
                 <th>Accommodation</th>
+                <th>Duration</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -38,24 +41,27 @@ else
             @foreach (var booking in bookings)
             {
                 <tr>
-                    <td>@booking.StartDate</td>
-                    <td>@booking.EndDate</td>
-                    <td>@GetAccommodationName(booking.AccommodationId)</td>
+                    <td>@booking.StartDate.ToString("dd MMM yyyy")</td>
+                    <td>@booking.EndDate.ToString("dd MMM yyyy")</td>
+                    <td><strong>@GetAccommodationName(booking.AccommodationId)</strong></td>
+                    <td><span class="duration-pill">@GetDuration(booking) nights</span></td>
                     <td>
                         <a class="btn btn-warning me-2"
                            href="@($"bookings/edit/{booking.BookingId}")">
-                            Edit
+                            ✎ Edit
                         </a>
                         <button class="btn btn-danger"
                                 @onclick="() => DeleteBooking(booking.BookingId)">
-                            Delete
+                            ▣ Delete
                         </button>
                     </td>
                 </tr>
             }
         </tbody>
-    </table>
-}
+            </table>
+        </div>
+    }
+</div>
 
 @code {
     private List<BookingDto>? bookings;
@@ -82,4 +88,7 @@ else
 
         return accommodation?.Name ?? "Unknown";
     }
+
+    private static int GetDuration(BookingDto booking)
+        => booking.EndDate.DayNumber - booking.StartDate.DayNumber;
 }

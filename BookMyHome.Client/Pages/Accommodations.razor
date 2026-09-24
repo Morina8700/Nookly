@@ -5,82 +5,62 @@
 
 @inject AccommodationService AccommodationService
 
-<h1>Accommodations</h1>
+<header class="page-header">
+    <div>
+        <h1>Accommodations</h1>
+        <p>@(accommodations?.Count ?? 0) properties listed</p>
+    </div>
+    <a href="/accommodations/create" class="btn btn-primary">＋ Add Property</a>
+</header>
 
-<a href="/accommodations/create"
-   class="btn btn-primary mb-4">
-    Create Accommodation
-</a>
-
-@if (accommodations == null)
-{
-    <p>Loading...</p>
-}
-else if (accommodations.Count == 0)
-{
-    <p>No accommodations found.</p>
-}
-else
-{
-    <div class="row">
+<div class="page-body">
+    @if (accommodations == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (accommodations.Count == 0)
+    {
+        <div class="table-card empty-state">No accommodations found.</div>
+    }
+    else
+    {
+        <div class="property-grid">
 
         @foreach (var accommodation in accommodations)
         {
-            <div class="col-md-4 mb-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <a href="@($"/accommodations/{accommodation.AccommodationId}")"
-                       style="text-decoration: none; color: inherit;">
-
-                        @if (accommodation.Images.Any())
-                        {
-                            <img src="@accommodation.Images.First().ImageUrl"
-                                 class="card-img-top"
-                                 alt="@accommodation.Name"
-                                 style="height: 230px;
-                            object-fit: cover;" />
-                        }
-
-                        <div class="card-body">
-
-                            <h4 class="card-title">
-                                @accommodation.Name
-                            </h4>
-
-                            <p class="card-text">
-                                @accommodation.Address
-                            </p>
-
-                            <h5>
-                                @accommodation.PricePerNight kr. / night
-                            </h5>
-
-                        </div>
-
-                    </a>
-
-                    <div class="card-footer">
-
+            <article class="property-card">
+                <a href="@($"/accommodations/{accommodation.AccommodationId}")" class="property-link">
+                    @if (accommodation.Images.Any())
+                    {
+                        <img src="@accommodation.Images.First().ImageUrl" class="property-card-image" alt="@accommodation.Name" />
+                    }
+                    else
+                    {
+                        <div class="property-card-image image-placeholder">No image</div>
+                    }
+                    <div class="property-card-body">
+                        <h2>@accommodation.Name</h2>
+                        <p class="location">⌖ @accommodation.Address</p>
+                        <p>@accommodation.Description</p>
+                        <div class="price"><strong>@accommodation.PricePerNight</strong> kr. / night</div>
+                    </div>
+                </a>
+                <div class="property-card-actions">
                         <a class="btn btn-warning"
                            href="@($"/accommodations/edit/{accommodation.AccommodationId}")">
-                            Edit
+                            ✎ Edit
                         </a>
-
                         <button class="btn btn-danger"
                                 @onclick="() => DeleteAccommodation(accommodation.AccommodationId)">
-                            Delete
+                            ▣ Delete
                         </button>
-
-                    </div>
-
                 </div>
-
-            </div>
+            </article>
         }
 
-    </div>
-}
+        </div>
+    }
+</div>
 
 @code {
     private List<AccommodationDto>? accommodations;

@@ -7,7 +7,7 @@
 @inject AccommodationService AccommodationService
 @inject NavigationManager NavigationManager
 
-<h1>Edit Booking</h1>
+<header class="page-header"><div><h1>Edit Booking</h1><p>Update the details of your reservation.</p></div></header>
 
 @if (isLoading)
 {
@@ -15,10 +15,10 @@
 }
 else
 {
-    <EditForm Model="model"
+    <div class="page-body"><EditForm class="form-card" Model="model"
               OnValidSubmit="HandleUpdateBooking">
 
-        <div class="mb-3">
+        <div class="field">
             <label class="form-label">
                 Accommodation
             </label>
@@ -36,7 +36,7 @@ else
             </InputSelect>
         </div>
 
-        <div class="mb-3">
+        <div class="field">
             <label class="form-label">
                 Start date
             </label>
@@ -45,7 +45,7 @@ else
                        @bind-Value="model.StartDate" />
         </div>
 
-        <div class="mb-3">
+        <div class="field">
             <label class="form-label">
                 End date
             </label>
@@ -72,7 +72,7 @@ else
             Cancel
         </button>
 
-    </EditForm>
+    </EditForm></div>
 }
 
 @code {

@@ -1,153 +1,80 @@
-﻿@page "/accommodations/{Id:guid}"
-
+@page "/accommodations/{Id:guid}"
 @using BookMyHome.Client.Models
 @using BookMyHome.Client.Services
-
 @inject AccommodationService AccommodationService
 @inject NavigationManager NavigationManager
 
 @if (accommodation == null)
 {
-    <p>Loading...</p>
+    <div class="page-body"><p>Loading...</p></div>
 }
 else
 {
-    <div class="container">
+    <header class="page-header">
+        <div>
+            <h1>@accommodation.Name</h1>
+            <p>Accommodation details</p>
+        </div>
+        <button class="btn btn-warning" @onclick="GoBack">Back to accommodations</button>
+    </header>
 
-        <h1 class="mb-3">
-            @accommodation.Name
-        </h1>
-
-        @if (accommodation.Images.Any())
-        {
-            <div class="position-relative mb-4"
-                 style="max-width: 900px;">
-
+    <div class="page-body">
+        <article class="detail-card">
+            @if (accommodation.Images.Any())
+            {
                 <img src="@accommodation.Images[currentImageIndex].ImageUrl"
                      alt="@accommodation.Name"
-                     class="img-fluid rounded shadow"
-                     style="width: 100%;
-                height: 500px;
-                object-fit: cover;" />
-
+                     class="detail-hero" />
                 @if (accommodation.Images.Count > 1)
                 {
-                    <button class="btn btn-dark position-absolute top-50 start-0 translate-middle-y ms-3"
-                            @onclick="PreviousImage">
-                        ❮
-                    </button>
-
-                    <button class="btn btn-dark position-absolute top-50 end-0 translate-middle-y me-3"
-                            @onclick="NextImage">
-                        ❯
-                    </button>
+                    <div class="image-controls">
+                        <button @onclick="PreviousImage" aria-label="Previous image">❮</button>
+                        <button @onclick="NextImage" aria-label="Next image">❯</button>
+                    </div>
                 }
-
+            }
+            <div class="detail-content">
+                <h1>@accommodation.Name</h1>
+                <div class="location">⌖ @accommodation.Address</div>
+                <p class="description">@accommodation.Description</p>
+                <div class="stat-grid">
+                    <div class="stat">
+                        <small>Price per night</small>
+                        <strong>@accommodation.PricePerNight kr.</strong>
+                    </div>
+                    @if (accommodation.Images.Any())
+                    {
+                        <div class="stat">
+                            <small>Property photos</small>
+                            <strong>@accommodation.Images.Count</strong>
+                        </div>
+                    }
+                </div>
+                <a class="btn btn-primary" href="@($"/accommodations/edit/{accommodation.AccommodationId}")">✎ Edit Property</a>
             </div>
-
-            <p>
-                Image @(currentImageIndex + 1)
-                of
-                @accommodation.Images.Count
-            </p>
-        }
-        else
-        {
-            <div class="alert alert-secondary">
-                No images available.
-            </div>
-        }
-
-        <hr />
-
-        <h3>About this accommodation</h3>
-
-        <p class="lead">
-            @accommodation.Description
-        </p>
-
-        <hr />
-
-        <p>
-            <strong>Address:</strong>
-            @accommodation.Address
-        </p>
-
-        <p>
-            <strong>Price per night:</strong>
-            @accommodation.PricePerNight kr.
-        </p>
-
-        <p>
-            <strong>Address:</strong>
-            @accommodation.Address
-        </p>
-
-        <p>
-            <strong>Price per night:</strong>
-            @accommodation.PricePerNight kr.
-        </p>
-
-
-
-        <a class="btn btn-warning"
-           href="@($"/accommodations/edit/{accommodation.AccommodationId}")">
-            Edit
-        </a>
-
-        <button class="btn btn-secondary ms-2"
-                @onclick="GoBack">
-            Back
-        </button>
-
+        </article>
     </div>
 }
 
 @code {
-    [Parameter]
-    public Guid Id { get; set; }
-
+    [Parameter] public Guid Id { get; set; }
     private AccommodationDto? accommodation;
-
-    private int currentImageIndex = 0;
+    private int currentImageIndex;
 
     protected override async Task OnInitializedAsync()
-    {
-        accommodation =
-            await AccommodationService.GetByIdAsync(Id);
-    }
+        => accommodation = await AccommodationService.GetByIdAsync(Id);
 
     private void NextImage()
     {
-        if (accommodation == null ||
-            accommodation.Images.Count == 0)
-            return;
-
-        currentImageIndex++;
-
-        if (currentImageIndex >= accommodation.Images.Count)
-        {
-            currentImageIndex = 0;
-        }
+        if (accommodation is null || accommodation.Images.Count == 0) return;
+        currentImageIndex = (currentImageIndex + 1) % accommodation.Images.Count;
     }
 
     private void PreviousImage()
     {
-        if (accommodation == null ||
-            accommodation.Images.Count == 0)
-            return;
-
-        currentImageIndex--;
-
-        if (currentImageIndex < 0)
-        {
-            currentImageIndex =
-                accommodation.Images.Count - 1;
-        }
+        if (accommodation is null || accommodation.Images.Count == 0) return;
+        currentImageIndex = (currentImageIndex - 1 + accommodation.Images.Count) % accommodation.Images.Count;
     }
 
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo("/accommodations");
-    }
+    private void GoBack() => NavigationManager.NavigateTo("/accommodations");
 }

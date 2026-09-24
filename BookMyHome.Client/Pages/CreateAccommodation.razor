@@ -6,33 +6,31 @@
 @inject AccommodationService AccommodationService
 @inject NavigationManager NavigationManager
 
-<h1>Create Accommodation</h1>
+<header class="page-header"><div><h1>Add Property</h1><p>List a new accommodation for guests to book.</p></div></header>
+<div class="page-body"><EditForm class="form-card" Model="model" OnValidSubmit="HandleCreate">
 
-<EditForm Model="model"
-          OnValidSubmit="HandleCreate">
-
-    <div class="mb-3">
+    <div class="field">
         <label class="form-label">Name</label>
 
         <InputText class="form-control"
                    @bind-Value="model.Name" />
     </div>
 
-    <div class="mb-3">
+    <div class="field">
         <label class="form-label">Address</label>
 
         <InputText class="form-control"
                    @bind-Value="model.Address" />
     </div>
 
-    <div class="mb-3">
+    <div class="field">
         <label class="form-label">Price per night</label>
 
         <InputNumber class="form-control"
                      @bind-Value="model.PricePerNight" />
     </div>
 
-    <div class="mb-3">
+    <div class="field">
         <label class="form-label">Description</label>
 
         <InputTextArea class="form-control"
@@ -58,7 +56,7 @@
         Cancel
     </button>
 
-</EditForm>
+</EditForm></div>
 
 @code {
     private CreateAccommodationDto model = new()

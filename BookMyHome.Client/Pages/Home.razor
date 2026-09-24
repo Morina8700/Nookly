@@ -1,7 +1,49 @@
-﻿@page "/"
+@page "/"
+@using BookMyHome.Client.Models
+@using BookMyHome.Client.Services
+@inject BookingService BookingService
+@inject AccommodationService AccommodationService
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<header class="page-header">
+    <div>
+        <h1>Welcome back</h1>
+        <p>Here's an overview of your bookings and accommodations.</p>
+    </div>
+</header>
 
-Welcome to your new app.
+<div class="page-body home-body">
+    <div class="summary-grid">
+        <div class="summary-card">
+            <span class="summary-icon">▣</span>
+            <strong>@(bookings?.Count ?? 0)</strong>
+            <span>Bookings</span>
+            <small>your reservations</small>
+        </div>
+        <div class="summary-card">
+            <span class="summary-icon">▤</span>
+            <strong>@(accommodations?.Count ?? 0)</strong>
+            <span>Properties</span>
+            <small>available to book</small>
+        </div>
+    </div>
+
+    <section class="quick-actions">
+        <h2>Quick actions</h2>
+        <p>Jump straight to what you need.</p>
+        <a class="btn btn-primary" href="/bookings/create">＋ New Booking</a>
+        <a class="btn btn-warning ms-2" href="/accommodations">Browse Properties</a>
+    </section>
+</div>
+
+@code {
+    private List<BookingDto>? bookings;
+    private List<AccommodationDto>? accommodations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        bookings = await BookingService.GetAllAsync();
+        accommodations = await AccommodationService.GetAllAsync();
+    }
+}
