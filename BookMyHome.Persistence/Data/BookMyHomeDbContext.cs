@@ -34,6 +34,14 @@ namespace BookMyHome.Persistence.Data
             modelBuilder.Entity<Accommodation>()
                 .HasKey(a => a.AccommodationId);
 
+            modelBuilder.Entity<Accommodation>()
+                .Property(a => a.PricePerNight)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Accommodation>()
+                .Property(a => a.FloorAreaSquareMeters)
+                .HasPrecision(18, 2);
+
             modelBuilder.Entity<Booking>()
                 .HasKey(b => b.BookingId);
 
@@ -116,7 +124,22 @@ namespace BookMyHome.Persistence.Data
                     Address = "Beach Road 1",
                     Description = "Hyggeligt sommerhus tæt på stranden med stor terrasse, lys stue og moderne køkken.",
                     PricePerNight = 1200m,
-                    HostId = host1Id
+                    HostId = host1Id,
+                    FloorAreaSquareMeters = 92m,
+                    Bedrooms = 3,
+                    Bathrooms = 1,
+                    MaxGuests = 6,
+                    HasAirConditioning = false,
+                    HasHeatedFloors = true,
+                    HasWifi = true,
+                    HasKitchen = true,
+                    HasParking = true,
+                    HasWasher = true,
+                    HasTv = true,
+                    HasBalcony = true,
+                    HasPool = false,
+                    PetsAllowed = true,
+                    SmokingAllowed = false
                 },
 
                 new
@@ -126,7 +149,22 @@ namespace BookMyHome.Persistence.Data
                     Address = "Main Street 10",
                     Description = "",
                     PricePerNight = 850m,
-                    HostId = host1Id
+                    HostId = host1Id,
+                    FloorAreaSquareMeters = 58m,
+                    Bedrooms = 2,
+                    Bathrooms = 1,
+                    MaxGuests = 4,
+                    HasAirConditioning = true,
+                    HasHeatedFloors = false,
+                    HasWifi = true,
+                    HasKitchen = true,
+                    HasParking = false,
+                    HasWasher = true,
+                    HasTv = true,
+                    HasBalcony = false,
+                    HasPool = false,
+                    PetsAllowed = false,
+                    SmokingAllowed = false
                 }
             );
 

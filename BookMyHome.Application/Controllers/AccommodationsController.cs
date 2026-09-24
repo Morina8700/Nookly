@@ -46,7 +46,22 @@ namespace BookMyHome.Application.Controllers
                     dto.Address,
                     dto.Description,
                     dto.PricePerNight,
-                    dto.HostId);
+                    dto.HostId,
+                    dto.FloorAreaSquareMeters,
+                    dto.Bedrooms,
+                    dto.Bathrooms,
+                    dto.MaxGuests,
+                    dto.HasAirConditioning,
+                    dto.HasHeatedFloors,
+                    dto.HasWifi,
+                    dto.HasKitchen,
+                    dto.HasParking,
+                    dto.HasWasher,
+                    dto.HasTv,
+                    dto.HasBalcony,
+                    dto.HasPool,
+                    dto.PetsAllowed,
+                    dto.SmokingAllowed);
 
                 await _repository.AddAsync(accommodation);
 
@@ -73,7 +88,22 @@ namespace BookMyHome.Application.Controllers
                     dto.Name,
                     dto.Address,
                     dto.Description,
-                    dto.PricePerNight);
+                    dto.PricePerNight,
+                    dto.FloorAreaSquareMeters,
+                    dto.Bedrooms,
+                    dto.Bathrooms,
+                    dto.MaxGuests,
+                    dto.HasAirConditioning,
+                    dto.HasHeatedFloors,
+                    dto.HasWifi,
+                    dto.HasKitchen,
+                    dto.HasParking,
+                    dto.HasWasher,
+                    dto.HasTv,
+                    dto.HasBalcony,
+                    dto.HasPool,
+                    dto.PetsAllowed,
+                    dto.SmokingAllowed);
 
                 return NoContent();
             }

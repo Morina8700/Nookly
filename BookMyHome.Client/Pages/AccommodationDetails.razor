@@ -50,6 +50,30 @@ else
                         </div>
                     }
                 </div>
+                <h2>Property facts</h2>
+                <div class="stat-grid">
+                    <div class="stat"><small>Floor area</small><strong>@accommodation.FloorAreaSquareMeters m²</strong></div>
+                    <div class="stat"><small>Bedrooms</small><strong>@accommodation.Bedrooms</strong></div>
+                    <div class="stat"><small>Bathrooms</small><strong>@accommodation.Bathrooms</strong></div>
+                    <div class="stat"><small>Maximum guests</small><strong>@accommodation.MaxGuests</strong></div>
+                </div>
+                <h2>Amenities</h2>
+                <ul class="amenity-list">
+                    @if (accommodation.HasAirConditioning) { <li>Air conditioning</li> }
+                    @if (accommodation.HasHeatedFloors) { <li>Heated floors</li> }
+                    @if (accommodation.HasWifi) { <li>Wi-Fi</li> }
+                    @if (accommodation.HasKitchen) { <li>Kitchen</li> }
+                    @if (accommodation.HasParking) { <li>Parking</li> }
+                    @if (accommodation.HasWasher) { <li>Washer</li> }
+                    @if (accommodation.HasTv) { <li>TV</li> }
+                    @if (accommodation.HasBalcony) { <li>Balcony</li> }
+                    @if (accommodation.HasPool) { <li>Pool</li> }
+                </ul>
+                <h2>House rules</h2>
+                <ul class="amenity-list">
+                    <li>Pets @(accommodation.PetsAllowed ? "allowed" : "not allowed")</li>
+                    <li>Smoking @(accommodation.SmokingAllowed ? "allowed" : "not allowed")</li>
+                </ul>
                 <a class="btn btn-primary" href="@($"/accommodations/edit/{accommodation.AccommodationId}")">✎ Edit Property</a>
             </div>
         </article>

@@ -16,6 +16,8 @@ else
 {
     <div class="page-body"><EditForm class="form-card" Model="model"
               OnValidSubmit="HandleUpdate">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
         <div class="field">
             <label class="form-label">Name</label>
@@ -45,6 +47,27 @@ else
                            @bind-Value="model.Description"
                            rows="5" />
         </div>
+
+                    <h2>Property facts</h2>
+                    <div class="field"><label class="form-label">Floor area (m²)</label><InputNumber class="form-control" @bind-Value="model.FloorAreaSquareMeters" /></div>
+                    <div class="field"><label class="form-label">Bedrooms</label><InputNumber class="form-control" @bind-Value="model.Bedrooms" /></div>
+                    <div class="field"><label class="form-label">Bathrooms</label><InputNumber class="form-control" @bind-Value="model.Bathrooms" /></div>
+                    <div class="field"><label class="form-label">Maximum guests</label><InputNumber class="form-control" @bind-Value="model.MaxGuests" /></div>
+
+                    <h2>Comfort and amenities</h2>
+                    <label class="field"><InputCheckbox @bind-Value="model.HasAirConditioning" /> Air conditioning</label>
+                    <label class="field"><InputCheckbox @bind-Value="model.HasHeatedFloors" /> Heated floors</label>
+                    <label class="field"><InputCheckbox @bind-Value="model.HasWifi" /> Wi-Fi</label>
+                    <label class="field"><InputCheckbox @bind-Value="model.HasKitchen" /> Kitchen</label>
+                    <label class="field"><InputCheckbox @bind-Value="model.HasParking" /> Parking</label>
+                    <label class="field"><InputCheckbox @bind-Value="model.HasWasher" /> Washer</label>
+                    <label class="field"><InputCheckbox @bind-Value="model.HasTv" /> TV</label>
+                    <label class="field"><InputCheckbox @bind-Value="model.HasBalcony" /> Balcony</label>
+                    <label class="field"><InputCheckbox @bind-Value="model.HasPool" /> Pool</label>
+
+                    <h2>House rules</h2>
+                    <label class="field"><InputCheckbox @bind-Value="model.PetsAllowed" /> Pets allowed</label>
+                    <label class="field"><InputCheckbox @bind-Value="model.SmokingAllowed" /> Smoking allowed</label>
 
         @if (!string.IsNullOrWhiteSpace(errorMessage))
         {
@@ -93,7 +116,22 @@ else
             Name = accommodation.Name,
             Address = accommodation.Address,
             PricePerNight = accommodation.PricePerNight,
-            Description = accommodation.Description
+            Description = accommodation.Description,
+            FloorAreaSquareMeters = accommodation.FloorAreaSquareMeters,
+            Bedrooms = accommodation.Bedrooms,
+            Bathrooms = accommodation.Bathrooms,
+            MaxGuests = accommodation.MaxGuests,
+            HasAirConditioning = accommodation.HasAirConditioning,
+            HasHeatedFloors = accommodation.HasHeatedFloors,
+            HasWifi = accommodation.HasWifi,
+            HasKitchen = accommodation.HasKitchen,
+            HasParking = accommodation.HasParking,
+            HasWasher = accommodation.HasWasher,
+            HasTv = accommodation.HasTv,
+            HasBalcony = accommodation.HasBalcony,
+            HasPool = accommodation.HasPool,
+            PetsAllowed = accommodation.PetsAllowed,
+            SmokingAllowed = accommodation.SmokingAllowed
         };
 
         isLoading = false;

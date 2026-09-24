@@ -45,7 +45,22 @@ namespace BookMyHome.Persistence.Repositories
       string name,
       string address,
       string description,
-      decimal pricePerNight)
+    decimal pricePerNight,
+    decimal floorAreaSquareMeters,
+    int bedrooms,
+    int bathrooms,
+    int maxGuests,
+    bool hasAirConditioning,
+    bool hasHeatedFloors,
+    bool hasWifi,
+    bool hasKitchen,
+    bool hasParking,
+    bool hasWasher,
+    bool hasTv,
+    bool hasBalcony,
+    bool hasPool,
+    bool petsAllowed,
+    bool smokingAllowed)
         {
             var accommodation = await _context.Accommodations
                 .FirstOrDefaultAsync(
@@ -58,7 +73,22 @@ namespace BookMyHome.Persistence.Repositories
                 name,
                 address,
                 description,
-                pricePerNight);
+                pricePerNight,
+                floorAreaSquareMeters,
+                bedrooms,
+                bathrooms,
+                maxGuests,
+                hasAirConditioning,
+                hasHeatedFloors,
+                hasWifi,
+                hasKitchen,
+                hasParking,
+                hasWasher,
+                hasTv,
+                hasBalcony,
+                hasPool,
+                petsAllowed,
+                smokingAllowed);
 
             await _context.SaveChangesAsync();
         }
