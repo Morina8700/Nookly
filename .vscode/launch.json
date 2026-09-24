@@ -1,0 +1,47 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "BookMyHome: API",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/BookMyHome.Application/BookMyHome.Application.csproj",
+        "--launch-profile",
+        "https"
+      ],
+      "cwd": "${workspaceFolder}/BookMyHome.Application",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "BookMyHome: Client",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/BookMyHome.Client/BookMyHome.Client.csproj",
+        "--launch-profile",
+        "https"
+      ],
+      "cwd": "${workspaceFolder}/BookMyHome.Client",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    }
+  ],
+  "compounds": [
+    {
+      "name": "BookMyHome: API + Client",
+      "configurations": [
+        "BookMyHome: API",
+        "BookMyHome: Client"
+      ],
+      "stopAll": true
+    }
+  ]
+}

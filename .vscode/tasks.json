@@ -1,0 +1,102 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "BookMyHome: API",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/BookMyHome.Application/BookMyHome.Application.csproj",
+        "--launch-profile",
+        "https"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/BookMyHome.Application"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "dotnet",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^(.+?)\\((\\d+),(\\d+)\\):\\s+(warning|error)\\s+(\\w+):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^Building\\.",
+          "endsPattern": "^Now listening on:"
+        }
+      }
+    },
+    {
+      "label": "BookMyHome: Client",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/BookMyHome.Client/BookMyHome.Client.csproj",
+        "--launch-profile",
+        "https"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/BookMyHome.Client"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "dotnet",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^(.+?)\\((\\d+),(\\d+)\\):\\s+(warning|error)\\s+(\\w+):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^Building\\.",
+          "endsPattern": "^Now listening on:"
+        }
+      }
+    },
+    {
+      "label": "BookMyHome: Build",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "BookMyHome: Build API",
+        "BookMyHome: Build Client"
+      ],
+      "group": "build"
+    },
+    {
+      "label": "BookMyHome: Build API",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/BookMyHome.Application/BookMyHome.Application.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "BookMyHome: Build Client",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/BookMyHome.Client/BookMyHome.Client.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}
