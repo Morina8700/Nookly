@@ -198,7 +198,7 @@ namespace BookMyHome.Persistence.Data
     new
     {
         AccommodationImageId = image2Id,
-        ImageUrl = "/Images/SommerHus1/Nova-idyll-facade-terrasse.jpg",
+        ImageUrl = "/Images/SommerHus1/Nova-idyll-facade-terresse.jpg",
         AccommodationId = accommodation3Id
     },
     new
