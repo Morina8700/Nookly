@@ -15,6 +15,60 @@
 </header>
 
 <div class="page-body">
+    <EditForm Model="filters" OnValidSubmit="ApplyFilters">
+        <div class="form-card">
+            <div class="field">
+                <label class="form-label">
+                    Accommodation
+                </label>
+
+                <InputSelect class="form-select"
+                             @bind-Value="filters.AccommodationId">
+                    <option value="@Guid.Empty">
+                        All accommodations
+                    </option>
+
+                    @foreach (var accommodation in accommodations ?? [])
+                    {
+                        <option value="@accommodation.AccommodationId">
+                            @accommodation.Name
+                        </option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="field">
+                <label class="form-label">
+                    From
+                </label>
+
+                <InputDate class="form-control"
+                           @bind-Value="filters.From" />
+            </div>
+
+            <div class="field">
+                <label class="form-label">
+                    To
+                </label>
+
+                <InputDate class="form-control"
+                           @bind-Value="filters.To" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+
+            <button type="button"
+                    class="btn btn-secondary ms-2"
+                    @onclick="ClearFilters">
+                Clear
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+<div class="page-body">
     @if (bookings == null)
     {
         <p>Loading...</p>
@@ -64,20 +118,32 @@
 </div>
 
 @code {
+
+public class BookingFilters
+{
+    public Guid AccommodationId { get; set; }
+
+    public DateOnly? From { get; set; }
+
+    public DateOnly? To { get; set; }
+}
+    private BookingFilters filters = new();
     private List<BookingDto>? bookings;
     private List<AccommodationDto>? accommodations;
 
     protected override async Task OnInitializedAsync()
     {
-        accommodations = await AccommodationService.GetAllAsync();
-        bookings = await BookingService.GetAllAsync();
+        accommodations =
+            await AccommodationService.GetAllAsync();
+
+        await ApplyFilters();
     }
 
     private async Task DeleteBooking(Guid id)
     {
         await BookingService.DeleteAsync(id);
-
-        bookings = await BookingService.GetAllAsync();
+        
+        await ApplyFilters();
     }
 
     private string GetAccommodationName(Guid accommodationId)
@@ -89,6 +155,31 @@
         return accommodation?.Name ?? "Unknown";
     }
 
+    
+
     private static int GetDuration(BookingDto booking)
         => booking.EndDate.DayNumber - booking.StartDate.DayNumber;
+
+
+
+private async Task ApplyFilters()
+{
+   Guid? accommodationId =
+        filters.AccommodationId == Guid.Empty
+            ? null
+            : filters.AccommodationId;
+
+    bookings = await BookingService.GetAllAsync(
+        accommodationId,
+        filters.From,
+        filters.To);
+}
+
+private async Task ClearFilters()
+{
+    filters = new BookingFilters();
+
+    bookings =
+        await BookingService.GetAllAsync();
+}
 }

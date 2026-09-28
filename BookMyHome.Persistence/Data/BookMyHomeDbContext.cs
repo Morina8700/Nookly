@@ -31,6 +31,12 @@ namespace BookMyHome.Persistence.Data
             modelBuilder.Entity<User>()
                  .HasKey(u => u.UserId);
 
+                 modelBuilder.Entity<Booking>()
+                .HasOne(b => b.Guest)
+                .WithMany(g => g.Bookings)
+                .HasForeignKey(b => b.GuestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Accommodation>()
                 .HasKey(a => a.AccommodationId);
 
@@ -64,6 +70,9 @@ namespace BookMyHome.Persistence.Data
             // Faste IDs til seed data
             var host1Id =
                 Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+            var guest1Id =
+                Guid.Parse("44444444-4444-4444-4444-444444444444");
 
             var accommodation1Id =
                 Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -113,6 +122,16 @@ namespace BookMyHome.Persistence.Data
                     Email = "host@bookmyhome.dk"
                 }
             );
+
+            // GUEST
+            modelBuilder.Entity<Guest>().HasData(
+                new
+                {
+                UserId = guest1Id,
+                Name = "Test Guest",
+                Email = "guest@bookmyhome.dk"
+            }
+        );
 
 
             // ACCOMMODATIONS
@@ -170,23 +189,25 @@ namespace BookMyHome.Persistence.Data
 
 
             // BOOKINGS
-            modelBuilder.Entity<Booking>().HasData(
-                new
-                {
-                    BookingId = booking1Id,
-                    StartDate = new DateOnly(2027, 6, 1),
-                    EndDate = new DateOnly(2027, 6, 5),
-                    AccommodationId = accommodation1Id
-                },
+        modelBuilder.Entity<Booking>().HasData(
+    new
+    {
+        BookingId = booking1Id,
+        StartDate = new DateOnly(2027, 6, 1),
+        EndDate = new DateOnly(2027, 6, 5),
+        AccommodationId = accommodation1Id,
+        GuestId = guest1Id
+    },
 
-                new
-                {
-                    BookingId = booking2Id,
-                    StartDate = new DateOnly(2027, 7, 10),
-                    EndDate = new DateOnly(2027, 7, 15),
-                    AccommodationId = accommodation1Id
-                }
-            );
+    new
+    {
+        BookingId = booking2Id,
+        StartDate = new DateOnly(2027, 7, 10),
+        EndDate = new DateOnly(2027, 7, 15),
+        AccommodationId = accommodation1Id,
+        GuestId = guest1Id
+    }
+);
 
             modelBuilder.Entity<AccommodationImage>().HasData(
     new

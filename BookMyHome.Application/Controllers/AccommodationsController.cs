@@ -16,12 +16,43 @@ namespace BookMyHome.Application.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAll()
-        {
-            var accommodation = await _repository.GetAllAsync();
+        public async Task<ActionResult> GetAll(
+    [FromQuery] string? location = null,
+    [FromQuery] decimal? minPrice = null,
+    [FromQuery] decimal? maxPrice = null,
+    [FromQuery] bool? hasWifi = null,
+    [FromQuery] int? maxGuests = null)
+{
+    if (minPrice.HasValue
+        && maxPrice.HasValue
+        && minPrice > maxPrice)
+    {
+        return BadRequest(
+            "The minimum price must be less than or equal to the maximum price.");
+    }
 
-            return Ok(accommodation);
-        }
+    if (minPrice < 0 || maxPrice < 0)
+    {
+        return BadRequest(
+            "Prices cannot be negative.");
+    }
+
+    if (maxGuests <= 0)
+    {
+        return BadRequest(
+            "Maximum guests must be greater than zero.");
+    }
+
+    var accommodations = await _repository.SearchAsync(
+        location,
+        minPrice,
+        maxPrice,
+        hasWifi,
+        maxGuests);
+
+    return Ok(accommodations);
+}
+       
 
         [HttpGet("{id:guid}")]
         public async Task<ActionResult> GetById(Guid id)

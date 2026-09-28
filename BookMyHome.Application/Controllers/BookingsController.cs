@@ -18,9 +18,24 @@ namespace BookMyHome.Application.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Booking>>> GetAll()
+        public async Task<ActionResult<List<Booking>>> GetAll(
+            [FromQuery] Guid? accommodationId,
+            [FromQuery] DateOnly? from,
+            [FromQuery] DateOnly? to
+
+        )
         {
-            var bookings = await _repository.GetAllAsync();
+            if(from.HasValue && to.HasValue && from > to)
+            {
+                return BadRequest("The 'from' date cannot be later than the 'to' date.");
+            }
+
+            var bookings = await _repository.SearchAsync
+            (
+                accommodationId,
+                from,
+                to
+            );
 
             return Ok(bookings);
         }

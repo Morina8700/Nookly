@@ -104,5 +104,37 @@ namespace BookMyHome.Persistence.Repositories
             }
         }
 
+
+        public async Task<List<Booking>> SearchAsync(
+            Guid? accommodationId,
+            DateOnly? from,
+            DateOnly? to)
+        {
+            
+
+            var query = _context.Bookings
+            .Include(b => b.Accommodation)
+            .AsQueryable();
+
+            if(accommodationId.HasValue)
+            {
+                query = query.Where(b => b.AccommodationId == accommodationId.Value);
+            }
+
+            if(from.HasValue)
+            {
+                query = query.Where(b => b.EndDate >= from.Value);
+            }
+
+            if(to.HasValue)
+            {
+                query = query.Where(b => b.StartDate <= to.Value);
+            }
+
+            return await query
+            .OrderBy(b => b.StartDate)
+            .ToListAsync();
+        }
+
     }
 }

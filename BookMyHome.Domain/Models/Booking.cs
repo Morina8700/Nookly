@@ -15,6 +15,10 @@ namespace BookMyHome.Domain.Models
 
         public Accommodation Accommodation { get; private set; }
 
+        public Guid? GuestId { get; private set; }
+
+        public Guest? Guest { get; private set; }
+
         public byte[] RowVersion { get; private set; } =Array.Empty<byte>();
 
         public Booking () { }

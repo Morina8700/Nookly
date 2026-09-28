@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using BookMyHome.Client.Models;
+using System.Text;
 
 namespace BookMyHome.Client.Services
 {
@@ -12,11 +13,40 @@ namespace BookMyHome.Client.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<BookingDto>> GetAllAsync()
+        public async Task<List<BookingDto>> GetAllAsync(
+
+            Guid? accommodationId = null,
+            DateOnly? from = null,
+            DateOnly? to = null
+        )
         {
-            return await _httpClient
-                .GetFromJsonAsync<List<BookingDto>>("api/bookings")
-                ?? new List<BookingDto>();
+            var query = new List<string>();
+
+            if(accommodationId.HasValue)
+            {
+                query.Add($"accommodationId={accommodationId.Value}");
+            }
+
+            if(from.HasValue)
+            {
+                query.Add($"from={from.Value:yyyy-MM-dd}");
+            }
+
+            if(to.HasValue)
+            {
+                query.Add($"to={to.Value:yyyy-MM-dd}");
+            }
+
+            var url = "api/bookings";
+
+            if(query.Count > 0)
+            {
+                url += "?" + string.Join("&", query);
+            }
+
+              return await _httpClient
+        .GetFromJsonAsync<List<BookingDto>>(url)
+        ?? new List<BookingDto>();
         }
         public async Task<HttpResponseMessage> CreateAsync(
     CreateBookingDto booking)

@@ -14,13 +14,56 @@ public class AccommodationService
         _httpClient = httpClient;
     }
 
-    public async Task<List<AccommodationDto>> GetAllAsync()
+ public async Task<List<AccommodationDto>> GetAllAsync(
+    string? location = null,
+    decimal? minPrice = null,
+    decimal? maxPrice = null,
+    bool? hasWifi = null,
+    int? maxGuests = null)
+{
+    var query = new List<string>();
+
+    if (!string.IsNullOrWhiteSpace(location))
     {
-        return await _httpClient
-            .GetFromJsonAsync<List<AccommodationDto>>(
-                "api/accommodations")
-            ?? new List<AccommodationDto>();
+        query.Add(
+            $"location={Uri.EscapeDataString(location)}");
     }
+
+    if (minPrice.HasValue)
+    {
+        query.Add(
+            $"minPrice={minPrice.Value}");
+    }
+
+    if (maxPrice.HasValue)
+    {
+        query.Add(
+            $"maxPrice={maxPrice.Value}");
+    }
+
+    if (hasWifi.HasValue)
+    {
+        query.Add(
+            $"hasWifi={hasWifi.Value.ToString().ToLowerInvariant()}");
+    }
+
+    if (maxGuests.HasValue)
+    {
+        query.Add(
+            $"maxGuests={maxGuests.Value}");
+    }
+
+    var url = "api/accommodations";
+
+    if (query.Count > 0)
+    {
+        url += "?" + string.Join("&", query);
+    }
+
+    return await _httpClient
+        .GetFromJsonAsync<List<AccommodationDto>>(url)
+        ?? new List<AccommodationDto>();
+}
 
     public async Task<AccommodationDto?> GetByIdAsync(Guid id)
     {

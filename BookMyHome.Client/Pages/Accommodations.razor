@@ -14,6 +14,71 @@
 </header>
 
 <div class="page-body">
+    <EditForm Model="filters" OnValidSubmit="ApplyFilters">
+        <div class="form-card">
+            <div class="field">
+                <label class="form-label">
+                    Location
+                </label>
+
+                <InputText class="form-control"
+                           @bind-Value="filters.Location" />
+            </div>
+
+            <div class="field">
+                <label class="form-label">
+                    Minimum price
+                </label>
+
+                <InputNumber class="form-control"
+                             @bind-Value="filters.MinPrice" />
+            </div>
+
+            <div class="field">
+                <label class="form-label">
+                    Maximum price
+                </label>
+
+                <InputNumber class="form-control"
+                             @bind-Value="filters.MaxPrice" />
+            </div>
+
+            <div class="field">
+                <label class="form-label">
+                    Minimum guests
+                </label>
+
+                <InputNumber class="form-control"
+                             @bind-Value="filters.MaxGuests" />
+            </div>
+
+            <div class="field">
+                <label class="form-label">
+                    Wi-Fi
+                </label>
+
+                <InputSelect class="form-select"
+                             @bind-Value="filters.HasWifi">
+                    <option value="">Any</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </InputSelect>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+
+            <button type="button"
+                    class="btn btn-secondary ms-2"
+                    @onclick="ClearFilters">
+                Clear
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+<div class="page-body">
     @if (accommodations == null)
     {
         <p>Loading...</p>
@@ -63,20 +128,36 @@
 </div>
 
 @code {
+    private AccommodationFilters filters = new();
     private List<AccommodationDto>? accommodations;
 
     protected override async Task OnInitializedAsync()
     {
-        accommodations =
-            await AccommodationService.GetAllAsync();
+        await ApplyFilters();
     }
+    private async Task ApplyFilters()
+{
+    accommodations =
+        await AccommodationService.GetAllAsync(
+            filters.Location,
+            filters.MinPrice,
+            filters.MaxPrice,
+            filters.HasWifi,
+            filters.MaxGuests);
+}
+
+private async Task ClearFilters()
+{
+    filters = new AccommodationFilters();
+
+    await ApplyFilters();
+}
 
     private async Task DeleteAccommodation(Guid id)
     {
         await AccommodationService.DeleteAsync(id);
 
-        accommodations =
-            await AccommodationService.GetAllAsync();
+        await ApplyFilters();
     }
 
     private static string GetImageUrl(string imageUrl)
@@ -85,5 +166,18 @@
         return imageUrl;
 
     return $"https://localhost:7096{imageUrl}";
+}
+
+public class AccommodationFilters
+{
+    public string? Location { get; set; }
+
+    public decimal? MinPrice { get; set; }
+
+    public decimal? MaxPrice { get; set; }
+
+    public bool? HasWifi { get; set; }
+
+    public int? MaxGuests { get; set; }
 }
 }

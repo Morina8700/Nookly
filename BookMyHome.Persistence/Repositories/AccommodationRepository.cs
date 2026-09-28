@@ -24,6 +24,54 @@ namespace BookMyHome.Persistence.Repositories
         .ToListAsync();
         }
 
+  public async Task<List<Accommodation>> SearchAsync(
+    string? location,
+    decimal? minPrice,
+    decimal? maxPrice,
+    bool? hasWifi,
+    int? maxGuests)
+{
+    var query = _context.Accommodations
+        .Include(a => a.Images)
+        .Include(a => a.Host)
+        .AsQueryable();
+
+    if (!string.IsNullOrWhiteSpace(location))
+    {
+        query = query.Where(a =>
+            a.Name.Contains(location)
+            || a.Address.Contains(location));
+    }
+
+    if (minPrice.HasValue)
+    {
+        query = query.Where(a =>
+            a.PricePerNight >= minPrice.Value);
+    }
+
+    if (maxPrice.HasValue)
+    {
+        query = query.Where(a =>
+            a.PricePerNight <= maxPrice.Value);
+    }
+
+    if (hasWifi.HasValue)
+    {
+        query = query.Where(a =>
+            a.HasWifi == hasWifi.Value);
+    }
+
+    if (maxGuests.HasValue)
+    {
+        query = query.Where(a =>
+            a.MaxGuests >= maxGuests.Value);
+    }
+
+    return await query
+        .OrderBy(a => a.PricePerNight)
+        .ToListAsync();
+}
+
         public async Task<Accommodation?> GetByIdAsync(Guid id)
         {
             return await _context.Accommodations
