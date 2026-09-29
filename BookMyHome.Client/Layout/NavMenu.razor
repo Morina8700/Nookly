@@ -12,6 +12,16 @@
         </span>
     </a>
 
+    @if (AuthService.IsAuthenticated
+    && AuthService.CurrentUser != null)
+{
+    <div class="user-summary">
+        <strong>@AuthService.CurrentUser.Name</strong>
+        <small>@AuthService.CurrentUser.Role</small>
+    </div>
+}
+
+
     <div class="sidebar-label">Navigation</div>
     <nav class="nav flex-column" aria-label="Primary navigation">
         <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">

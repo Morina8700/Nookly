@@ -64,3 +64,19 @@
 .nav-link:hover { background: #1c243b; color: white; }
 .nav-icon { width: 18px; color: #98a6c2; font-size: 20px; text-align: center; }
 .nav-link.active .nav-icon { color: #9587ff; }
+
+.user-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 18px 12px;
+    padding: 12px;
+    border-radius: 9px;
+    background: #1c243b;
+    color: white;
+}
+
+.user-summary small {
+    color: #a7b4d0;
+    font-size: 13px;
+}

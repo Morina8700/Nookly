@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using BookMyHome.Client.Models;
 using Microsoft.JSInterop;
 
@@ -8,6 +9,7 @@ namespace BookMyHome.Client.Services;
 public class AuthService
 {
     private const string TokenStorageKey = "bookmyhome_token";
+    private const string UserStorageKey = "bookmyhome_user";
     private readonly HttpClient _httpClient;
     private readonly IJSRuntime _jsRuntime;
 
@@ -36,7 +38,18 @@ public class AuthService
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", token);
 
-            CurrentUser = new LoginResponse
+
+                var userJson = await _jsRuntime.InvokeAsync<string?>(
+                    "localStorage.getItem",
+                    UserStorageKey
+                );
+
+                if(!string.IsNullOrWhiteSpace(userJson))
+                {
+                CurrentUser = JsonSerializer.Deserialize<LoginResponse>(userJson);
+            }
+
+            CurrentUser ??= new LoginResponse
             {
                 Token = token
             };
@@ -65,7 +78,7 @@ public class AuthService
         }
 
         CurrentUser = loginResponse;
-        await SaveTokenAsync(loginResponse.Token);
+        await SaveTokenAsync(loginResponse);
 
         return (true, null);
     }
@@ -78,19 +91,34 @@ public class AuthService
         await _jsRuntime.InvokeVoidAsync(
             "localStorage.removeItem",
             TokenStorageKey);
+            
+            await _jsRuntime.InvokeVoidAsync(
+                "localStorage.removeItem",
+                UserStorageKey);
 
         AuthenticationStateChanged?.Invoke();
     }
 
-    private async Task SaveTokenAsync(string token)
+    private async Task SaveTokenAsync(LoginResponse loginResponse)
     {
         _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token);
-
+        new AuthenticationHeaderValue(
+            "Bearer",
+            loginResponse.Token);
+        
         await _jsRuntime.InvokeVoidAsync(
             "localStorage.setItem",
             TokenStorageKey,
-            token);
+            loginResponse.Token
+        );
+
+        var userJson = JsonSerializer.Serialize(loginResponse);
+
+        await _jsRuntime.InvokeVoidAsync(
+            "localStorage.setItem",
+            UserStorageKey,
+            userJson
+        );
 
         AuthenticationStateChanged?.Invoke();
     }
