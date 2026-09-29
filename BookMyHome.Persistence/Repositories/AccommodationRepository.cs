@@ -185,20 +185,25 @@ namespace BookMyHome.Persistence.Repositories
             return image;
         }
 
-        public async Task DeleteImageAsync(Guid imageId)
-        {
-            var image = await _context.AccommodationImages
-                .FirstOrDefaultAsync(
-                    i => i.AccommodationImageId == imageId);
+public async Task<bool> DeleteImageAsync(
+    Guid accommodationId,
+    Guid imageId)
+{
+    var image = await _context.AccommodationImages
+        .FirstOrDefaultAsync(i =>
+            i.AccommodationImageId == imageId
+            && i.AccommodationId == accommodationId);
 
-            if (image == null)
-                return;
+    if (image == null)
+    {
+        return false;
+    }
 
-            _context.AccommodationImages.Remove(image);
+    _context.AccommodationImages.Remove(image);
+    await _context.SaveChangesAsync();
 
-            await _context.SaveChangesAsync();
-        }
-
+    return true;
+}
 
     }
 }

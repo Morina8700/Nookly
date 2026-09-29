@@ -3,11 +3,14 @@ using BookMyHome.Domain.Models;
 using BookMyHome.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using BookMyHome.Application.DTO.Booking;
+using Microsoft.AspNetCore.Authorization;
+using BookMyHome.Application.Extensions;
 
 namespace BookMyHome.Application.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class BookingsController : ControllerBase
     {
         private readonly BookingRepository _repository;
@@ -30,8 +33,14 @@ namespace BookMyHome.Application.Controllers
                 return BadRequest("The 'from' date cannot be later than the 'to' date.");
             }
 
-            var bookings = await _repository.SearchAsync
-            (
+            var userId = User.GetUserId();
+
+            var isHost = User.IsInRole("Host");
+
+            var bookings =
+            await _repository.SearchForUserAsync(
+                userId,
+                isHost,
                 accommodationId,
                 from,
                 to
@@ -50,9 +59,21 @@ namespace BookMyHome.Application.Controllers
                 return NotFound();
             }
 
+            var currentUserId = User.GetUserId();
+
+            var isGuestOwner = booking.GuestId == currentUserId;
+
+            var isAccommodationHost = booking.Accommodation?.HostId == currentUserId;
+
+            if(!isGuestOwner && !isAccommodationHost)
+            {
+                return Forbid();
+            }
+
             return Ok(booking);
         }
 
+        [Authorize(Roles = "Guest")]
         [HttpPost]
         public async Task<ActionResult<Booking>> Create(BookingDto dto)
         {
@@ -60,6 +81,8 @@ namespace BookMyHome.Application.Controllers
                 dto.StartDate,
                 dto.EndDate,
                 dto.AccommodationId);
+
+        booking.AssignGuest(User.GetUserId());
 
             try
             {
@@ -86,6 +109,17 @@ namespace BookMyHome.Application.Controllers
                 return NotFound();
             }
 
+            var currentUserId = User.GetUserId();
+
+            var isGuestOwner = booking.GuestId == currentUserId;
+
+            var isAccommodationHost = booking.Accommodation?.HostId == currentUserId;
+    
+            if(!isGuestOwner && !isAccommodationHost)
+            {
+                return Forbid();
+            }
+
             await _repository.DeleteAsync(id);
 
             return NoContent();
@@ -96,6 +130,19 @@ namespace BookMyHome.Application.Controllers
     Guid id,
     UpdateBookingDto dto)
         {
+
+            var booking = await _repository.GetByIdAsync(id);
+
+            if(booking == null)
+            {
+                return NotFound();
+            }
+
+            if(booking.GuestId != User.GetUserId())
+            {
+                return Forbid();
+            }
+
             try
             {
                 await _repository.UpdateAsync(
@@ -109,7 +156,7 @@ namespace BookMyHome.Application.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound();
+                return NotFound("Accommodation was not found.");
             }
             catch (OverlapingBookingException ex)
             {

@@ -24,11 +24,24 @@ namespace BookMyHome.Persistence.Repositories
         {
             return await _context.Bookings
                 .Include(b => b.Accommodation)
+                .Include(b => b.Guest)
                 .FirstOrDefaultAsync(b => b.BookingId == id);
         }
 
         public async Task AddAsync(Booking booking)
         {
+            var accommodationExists =
+                await _context.Accommodations
+                     .AnyAsync(a =>
+                        a.AccommodationId == booking.AccommodationId);
+
+            if (!accommodationExists)
+            {
+                throw new KeyNotFoundException(
+                    "Accommodation was not found.");
+            }
+
+
             bool hasOverlap = await _context.Bookings
                 .AnyAsync(b =>
                     b.AccommodationId == booking.AccommodationId &&
@@ -135,6 +148,52 @@ namespace BookMyHome.Persistence.Repositories
             .OrderBy(b => b.StartDate)
             .ToListAsync();
         }
+
+
+        public async Task<List<Booking>> SearchForUserAsync(
+    Guid userId,
+    bool isHost,
+    Guid? accommodationId,
+    DateOnly? from,
+    DateOnly? to)
+{
+    var query = _context.Bookings
+        .Include(b => b.Accommodation)
+        .AsQueryable();
+
+    if (isHost)
+    {
+        query = query.Where(b =>
+            b.Accommodation.HostId == userId);
+    }
+    else
+    {
+        query = query.Where(b =>
+            b.GuestId == userId);
+    }
+
+    if (accommodationId.HasValue)
+    {
+        query = query.Where(b =>
+            b.AccommodationId == accommodationId.Value);
+    }
+
+    if (from.HasValue)
+    {
+        query = query.Where(b =>
+            b.EndDate >= from.Value);
+    }
+
+    if (to.HasValue)
+    {
+        query = query.Where(b =>
+            b.StartDate <= to.Value);
+    }
+
+    return await query
+        .OrderBy(b => b.StartDate)
+        .ToListAsync();
+}
 
     }
 }

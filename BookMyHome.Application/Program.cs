@@ -2,6 +2,10 @@ using BookMyHome.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 using BookMyHome.Persistence.Repositories;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using BookMyHome.Application.Services;
+using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString =
@@ -22,6 +26,8 @@ builder.Services.AddControllers()
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<AccommodationRepository>();
 builder.Services.AddScoped<BookingRepository>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<PasswordService>();
 builder.Services.AddCors(options =>
 {
 
@@ -33,6 +39,43 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod();
     });
 });
+
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException(
+        "JWT key is missing from configuration.");
+
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+    ?? throw new InvalidOperationException(
+        "JWT issuer is missing from configuration.");
+
+var jwtAudience = builder.Configuration["Jwt:Audience"]
+    ?? throw new InvalidOperationException(
+        "JWT audience is missing from configuration.");
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(jwtKey)),
+
+                ValidateIssuer = true,
+                ValidIssuer = jwtIssuer,
+
+                ValidateAudience = true,
+                ValidAudience = jwtAudience,
+
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+    });
+
+builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 
@@ -47,6 +90,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

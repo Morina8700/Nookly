@@ -70,5 +70,17 @@ namespace BookMyHome.Domain.Models
             EndDate = endDate;
             AccommodationId = accommodationId;
         }
+
+        public void AssignGuest(Guid guestId)
+            {
+                if (guestId == Guid.Empty)
+                {
+                    throw new ArgumentException(
+                        "Guest ID is required.",
+                        nameof(guestId));
+                }
+
+                GuestId = guestId;
+            }
     }
 }

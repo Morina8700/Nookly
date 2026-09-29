@@ -44,6 +44,16 @@
     text-decoration: none;
 }
 
+.logout-button {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+}
+
 .nav-link.active {
     border-left-color: #7663ff;
     background: linear-gradient(90deg, #292451, #232044);

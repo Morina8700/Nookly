@@ -5,6 +5,8 @@
 
 @inject BookingService BookingService
 @inject AccommodationService AccommodationService
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
 <header class="page-header">
     <div>
@@ -133,10 +135,25 @@ public class BookingFilters
 
     protected override async Task OnInitializedAsync()
     {
+        if (!AuthService.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        try
+        {
         accommodations =
             await AccommodationService.GetAllAsync();
 
         await ApplyFilters();
+        }
+        catch (HttpRequestException exception)
+            when (exception.StatusCode ==
+                System.Net.HttpStatusCode.Unauthorized)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
     }
 
     private async Task DeleteBooking(Guid id)

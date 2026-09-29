@@ -83,7 +83,7 @@ a {
 .image-controls { display: flex; justify-content: space-between; margin-top: -58px; padding: 0 15px 27px; position: relative; }
 .image-controls button { width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(17,24,43,.75); color: white; }
 @media (max-width: 700px) { .page-header { padding: 22px 20px; align-items: flex-start; flex-direction: column; } .page-body { padding: 22px 20px; } .table-card { overflow-x: auto; } .detail-hero { height: 260px; } }
-}
+
 
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;

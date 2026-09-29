@@ -2,10 +2,13 @@
 using BookMyHome.Domain.Models;
 using BookMyHome.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using BookMyHome.Application.Extensions;
 namespace BookMyHome.Application.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AccommodationsController : ControllerBase
     {
         private readonly AccommodationRepository _repository;
@@ -15,6 +18,7 @@ namespace BookMyHome.Application.Controllers
             _repository = repository;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult> GetAll(
     [FromQuery] string? location = null,
@@ -52,8 +56,7 @@ namespace BookMyHome.Application.Controllers
 
     return Ok(accommodations);
 }
-       
-
+        [AllowAnonymous]
         [HttpGet("{id:guid}")]
         public async Task<ActionResult> GetById(Guid id)
         {
@@ -65,10 +68,12 @@ namespace BookMyHome.Application.Controllers
             return Ok(accommodation);
         }
 
+        [Authorize(Roles = "Host")]
         [HttpPost]
         public async Task<ActionResult> Create(
        CreateAccommodationDto dto)
         {
+            
             try
             {
                 var accommodation = new Accommodation(
@@ -76,7 +81,7 @@ namespace BookMyHome.Application.Controllers
                     dto.Address,
                     dto.Description,
                     dto.PricePerNight,
-                    dto.HostId,
+                    User.GetUserId(),
                     dto.FloorAreaSquareMeters,
                     dto.Bedrooms,
                     dto.Bathrooms,
@@ -106,11 +111,26 @@ namespace BookMyHome.Application.Controllers
             }
         }
 
+        [Authorize(Roles = "Host")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(
     Guid id,
     UpdateAccommodationDto dto)
         {
+             var accommodation =
+                await _repository.GetByIdAsync(id);
+
+            if (accommodation == null)
+            {
+                return NotFound();
+            }
+
+            if (accommodation.HostId != User.GetUserId())
+            {
+                return Forbid();
+            }
+
+            
             try
             {
                 await _repository.UpdateAsync(
@@ -145,8 +165,11 @@ namespace BookMyHome.Application.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
 
+            
+        }
+        
+        [Authorize(Roles = "Host")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -155,29 +178,59 @@ namespace BookMyHome.Application.Controllers
             if (accommodation == null)
                 return NotFound();
 
+                if (accommodation.HostId != User.GetUserId())
+                    {
+                        return Forbid();
+                    }
+
             await _repository.DeleteAsync(id);
 
             return NoContent();
         }
 
+
+        [Authorize(Roles = "Host")]
         [HttpGet("{id:guid}/bookings")]
         public async Task<ActionResult> GetBookings(Guid id)
         {
-            var accommodation = await _repository.GetByIdAsync(id);
+            var accommodation =
+                await _repository.GetByIdAsync(id);
 
             if (accommodation == null)
+            {
                 return NotFound();
+            }
 
-            var bookings = await _repository.GetBookingsAsync(id);
+            if (accommodation.HostId != User.GetUserId())
+            {
+                return Forbid();
+            }
+
+            var bookings =
+                await _repository.GetBookingsAsync(id);
 
             return Ok(bookings);
         }
 
+        [Authorize(Roles = "Host")]
         [HttpPost("{id:guid}/images")]
         public async Task<ActionResult> AddImage(
     Guid id,
     AddAccommodationImageDto dto)
         {
+            var accommodation =
+                await _repository.GetByIdAsync(id);
+
+            if (accommodation == null)
+            {
+                return NotFound();
+            }
+
+            if (accommodation.HostId != User.GetUserId())
+            {
+                return Forbid();
+            }
+
             try
             {
                 var image = await _repository.AddImageAsync(
@@ -196,6 +249,7 @@ namespace BookMyHome.Application.Controllers
             }
         }
 
+        [Authorize(Roles = "Host")]
         [HttpDelete("{id:guid}/images/{imageId:guid}")]
         public async Task<IActionResult> DeleteImage(
             Guid id,
@@ -207,99 +261,119 @@ namespace BookMyHome.Application.Controllers
             if (accommodation == null)
                 return NotFound();
 
-            await _repository.DeleteImageAsync(imageId);
+                if (accommodation.HostId != User.GetUserId())
+                    {
+                        return Forbid();
+                    }
+                        var deleted =
+                        await _repository.DeleteImageAsync(id, imageId);
 
-            return NoContent();
+                    if (!deleted)
+                    {
+                        return NotFound();
+                    }
+
+                    return NoContent();
+
             }
 
+
+
+            [Authorize(Roles = "Host")]
             [HttpPost("{id:guid}/images/upload")]
-[RequestSizeLimit(100 * 1024 * 1024)]
-public async Task<ActionResult> UploadImages(
-    Guid id,
-    [FromForm] UploadAccommodationImagesRequest request,
-    IWebHostEnvironment environment)
-{
-    var accommodation = await _repository.GetByIdAsync(id);
+            [RequestSizeLimit(100 * 1024 * 1024)]
+            public async Task<ActionResult> UploadImages(
+                Guid id,
+                [FromForm] UploadAccommodationImagesRequest request,
+                IWebHostEnvironment environment)
+            {
+                var accommodation = await _repository.GetByIdAsync(id);
 
-    if (accommodation == null)
-        return NotFound();
+                    if (accommodation == null)
+                    {
+                        return NotFound();
+                    }
 
-    if (request.Files.Count == 0)
-        return BadRequest("Select at least one image.");
+                    if (accommodation.HostId != User.GetUserId())
+                    {
+                        return Forbid();
+                    }
 
-    if (request.Files.Count > 10)
-        return BadRequest("You can upload a maximum of 10 images at a time.");
+                if (request.Files.Count == 0)
+                    return BadRequest("Select at least one image.");
 
-    var allowedTypes = new HashSet<string>(
-        StringComparer.OrdinalIgnoreCase)
-    {
-        "image/jpeg",
-        "image/png",
-        "image/webp"
-    };
+                if (request.Files.Count > 10)
+                    return BadRequest("You can upload a maximum of 10 images at a time.");
 
-    var webRootPath = environment.WebRootPath
-        ?? Path.Combine(environment.ContentRootPath, "wwwroot");
+                var allowedTypes = new HashSet<string>(
+                    StringComparer.OrdinalIgnoreCase)
+                {
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp"
+                };
 
-    var uploadDirectory = Path.Combine(
-        webRootPath,
-        "uploads",
-        "accommodations",
-        id.ToString("N"));
+                var webRootPath = environment.WebRootPath
+                    ?? Path.Combine(environment.ContentRootPath, "wwwroot");
 
-    Directory.CreateDirectory(uploadDirectory);
+                var uploadDirectory = Path.Combine(
+                    webRootPath,
+                    "uploads",
+                    "accommodations",
+                    id.ToString("N"));
 
-    foreach (var file in request.Files)
-    {
-        if (file.Length == 0)
-            return BadRequest("Empty files cannot be uploaded.");
+                Directory.CreateDirectory(uploadDirectory);
 
-        if (file.Length > 10 * 1024 * 1024)
-            return BadRequest(
-                $"'{file.FileName}' is larger than 10 MB.");
+                foreach (var file in request.Files)
+                {
+                    if (file.Length == 0)
+                        return BadRequest("Empty files cannot be uploaded.");
 
-        if (!allowedTypes.Contains(file.ContentType))
-            return BadRequest(
-                $"'{file.FileName}' is not a supported image type.");
+                    if (file.Length > 10 * 1024 * 1024)
+                        return BadRequest(
+                            $"'{file.FileName}' is larger than 10 MB.");
 
-        var extension = Path.GetExtension(file.FileName)
-            .ToLowerInvariant();
+                    if (!allowedTypes.Contains(file.ContentType))
+                        return BadRequest(
+                            $"'{file.FileName}' is not a supported image type.");
 
-        if (extension != ".jpg"
-            && extension != ".jpeg"
-            && extension != ".png"
-            && extension != ".webp")
-        {
-            return BadRequest(
-                $"'{file.FileName}' is not a supported image type.");
-        }
+                    var extension = Path.GetExtension(file.FileName)
+                        .ToLowerInvariant();
 
-        var storedFileName =
-            $"{Guid.NewGuid():N}{extension}";
+                    if (extension != ".jpg"
+                        && extension != ".jpeg"
+                        && extension != ".png"
+                        && extension != ".webp")
+                    {
+                        return BadRequest(
+                            $"'{file.FileName}' is not a supported image type.");
+                    }
 
-        var filePath = Path.Combine(
-            uploadDirectory,
-            storedFileName);
+                    var storedFileName =
+                        $"{Guid.NewGuid():N}{extension}";
 
-        await using var stream =
-            System.IO.File.Create(filePath);
+                    var filePath = Path.Combine(
+                        uploadDirectory,
+                        storedFileName);
 
-        await file.CopyToAsync(stream);
+                    await using var stream =
+                        System.IO.File.Create(filePath);
 
-        var imageUrl =
-            $"/uploads/accommodations/{id:N}/{storedFileName}";
+                    await file.CopyToAsync(stream);
 
-        await _repository.AddImageAsync(
-            id,
-            imageUrl);
+                    var imageUrl =
+                        $"/uploads/accommodations/{id:N}/{storedFileName}";
+
+                    await _repository.AddImageAsync(
+                        id,
+                        imageUrl);
+                }
+
+                var updatedAccommodation =
+                    await _repository.GetByIdAsync(id);
+
+                return Ok(updatedAccommodation);
+            }
     }
-
-    var updatedAccommodation =
-        await _repository.GetByIdAsync(id);
-
-    return Ok(updatedAccommodation);
 }
 
-       
-    }
-}

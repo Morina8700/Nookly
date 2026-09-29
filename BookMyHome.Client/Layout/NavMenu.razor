@@ -1,4 +1,9 @@
-﻿<aside class="sidebar-content">
+﻿@using BookMyHome.Client.Services
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<aside class="sidebar-content">
     <a class="brand" href="/">
         <span class="brand-mark" aria-hidden="true">⌂</span>
         <span>
@@ -20,6 +25,47 @@
         <NavLink class="nav-link" href="accommodations">
             <span class="nav-icon" aria-hidden="true">▤</span>
             Accommodations
-        </NavLink>
+            </NavLink>
+@if (!AuthService.IsAuthenticated)
+{
+    <NavLink class="nav-link" href="login">
+        <span class="nav-icon" aria-hidden="true">↪</span>
+        Login
+    </NavLink>
+}
     </nav>
+    @if (AuthService.IsAuthenticated)
+    {
+        <button class="nav-link logout-button"
+        @onclick="LogoutAsync">
+        <span class="nav-icon" aria-hidden="true">↩</span>
+        Logout
+        </button>
+    }
 </aside>
+
+
+@code {
+    protected override void OnInitialized()
+    {
+        AuthService.AuthenticationStateChanged +=
+            OnAuthenticationStateChanged;
+    }
+
+    private void OnAuthenticationStateChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LogoutAsync()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
+
+    public void Dispose()
+    {
+        AuthService.AuthenticationStateChanged -=
+            OnAuthenticationStateChanged;
+    }
+}

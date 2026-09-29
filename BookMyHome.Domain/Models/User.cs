@@ -12,6 +12,20 @@ namespace BookMyHome.Domain.Models
 
         public string Email { get; protected set; } = string.Empty;
 
+        public string? PasswordHash { get; protected set; }
+
+        public void SetPasswordHash(string passwordHash)
+{
+    if (string.IsNullOrWhiteSpace(passwordHash))
+    {
+        throw new ArgumentException(
+            "Password hash cannot be empty.",
+            nameof(passwordHash));
+    }
+
+    PasswordHash = passwordHash;
+}
+
         protected User()
         {
         }

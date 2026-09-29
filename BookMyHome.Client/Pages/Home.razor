@@ -3,6 +3,7 @@
 @using BookMyHome.Client.Services
 @inject BookingService BookingService
 @inject AccommodationService AccommodationService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Home</PageTitle>
 
@@ -43,7 +44,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        bookings = await BookingService.GetAllAsync();
-        accommodations = await AccommodationService.GetAllAsync();
+        try
+        {
+            bookings = await BookingService.GetAllAsync();
+            accommodations = await AccommodationService.GetAllAsync();
+        }
+        catch (HttpRequestException exception)
+            when (exception.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
     }
 }
