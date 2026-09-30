@@ -28,14 +28,30 @@
             <span class="nav-icon" aria-hidden="true">⌂</span>
             Home
         </NavLink>
+
+            @if(AuthService.CurrentUser?.Role == "Guest")
+            {
         <NavLink class="nav-link" href="bookings">
             <span class="nav-icon" aria-hidden="true">▣</span>
             Bookings
         </NavLink>
+            }
+
+
         <NavLink class="nav-link" href="accommodations">
             <span class="nav-icon" aria-hidden="true">▤</span>
-            Accommodations
+            Browse Accommodations
             </NavLink>
+
+    @if (AuthService.CurrentUser?.Role == "Host")
+    {
+        <NavLink class="nav-link" href="accommodations/create">
+            <span class="nav-icon" aria-hidden="true">＋</span>
+            Create Accommodation
+        </NavLink>
+    }
+
+
 @if (!AuthService.IsAuthenticated)
 {
     <NavLink class="nav-link" href="login">
