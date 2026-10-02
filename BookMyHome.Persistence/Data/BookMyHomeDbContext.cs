@@ -1,4 +1,4 @@
-﻿using BookMyHome.Domain.Models;
+using BookMyHome.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookMyHome.Persistence.Data
@@ -80,23 +80,11 @@ namespace BookMyHome.Persistence.Data
             var accommodation2Id =
                 Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-            var accommodation3Id =
-                Guid.Parse("A09AF322-D431-4BE3-B01A-D7A444355088");
-
             var booking1Id =
                 Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
 
             var booking2Id =
                 Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-
-            var image1Id = Guid.Parse("10000000-0000-0000-0000-000000000001");
-            var image2Id = Guid.Parse("10000000-0000-0000-0000-000000000002");
-            var image3Id = Guid.Parse("10000000-0000-0000-0000-000000000003");
-            var image4Id = Guid.Parse("10000000-0000-0000-0000-000000000004");
-            var image5Id = Guid.Parse("10000000-0000-0000-0000-000000000005");
-            var image6Id = Guid.Parse("10000000-0000-0000-0000-000000000006");
-            var image7Id = Guid.Parse("10000000-0000-0000-0000-000000000007");
-            var image8Id = Guid.Parse("10000000-0000-0000-0000-000000000008");
 
 
             // RELATION: Host -> Accommodations
@@ -206,57 +194,6 @@ namespace BookMyHome.Persistence.Data
         EndDate = new DateOnly(2027, 7, 15),
         AccommodationId = accommodation1Id,
         GuestId = guest1Id
-    }
-);
-
-            modelBuilder.Entity<AccommodationImage>().HasData(
-    new
-    {
-        AccommodationImageId = image1Id,
-        ImageUrl = "/Images/SommerHus1/Nova-idyll-facade.jpg",
-        AccommodationId = accommodation3Id
-    },
-    new
-    {
-        AccommodationImageId = image2Id,
-        ImageUrl = "/Images/SommerHus1/Nova-idyll-facade-terresse.jpg",
-        AccommodationId = accommodation3Id
-    },
-    new
-    {
-        AccommodationImageId = image3Id,
-        ImageUrl = "/Images/SommerHus1/Nova-idyll-inde-alrum.jpg",
-        AccommodationId = accommodation3Id
-    },
-    new
-    {
-        AccommodationImageId = image4Id,
-        ImageUrl = "/Images/SommerHus1/Nova-idyll-inde-stue.jpg",
-        AccommodationId = accommodation3Id
-    },
-    new
-    {
-        AccommodationImageId = image5Id,
-        ImageUrl = "/Images/SommerHus1/Nova-idyll-inde-stue-kurvesofa.jpg",
-        AccommodationId = accommodation3Id
-    },
-    new
-    {
-        AccommodationImageId = image6Id,
-        ImageUrl = "/Images/SommerHus1/Nova-idyll-inde-stue-sofa.jpg",
-        AccommodationId = accommodation3Id
-    },
-    new
-    {
-        AccommodationImageId = image7Id,
-        ImageUrl = "/Images/SommerHus1/Nova-idyll-inde-stue-udgang-terrasse.jpg",
-        AccommodationId = accommodation3Id
-    },
-    new
-    {
-        AccommodationImageId = image8Id,
-        ImageUrl = "/Images/SommerHus1/Nova-idyll-plan.png",
-        AccommodationId = accommodation3Id
     }
 );
 

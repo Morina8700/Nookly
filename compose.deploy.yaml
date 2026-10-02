@@ -1,0 +1,70 @@
+# Run this file on its own, not as an override of compose.yaml.
+# The project name preserves the nookly_* volumes from the existing local stack.
+name: nookly
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: "${SQL_PASSWORD:?Keep your existing SQL_PASSWORD in .env}"
+    volumes:
+      - db-data:/var/opt/mssql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${MSSQL_SA_PASSWORD}" -C -Q "SELECT 1" || exit 1'
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  api:
+    image: ghcr.io/morina8700/nookly-api:latest
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_HTTP_PORTS: "8080"
+      Database__ApplyMigrationsOnStartup: "true"
+      ConnectionStrings__BookMyHome: "Server=db,1433;Database=BookMyHomeDb;User Id=sa;Password=${SQL_PASSWORD:?Set SQL_PASSWORD in .env};Encrypt=True;TrustServerCertificate=True"
+      Jwt__Key: "${JWT_KEY:?Keep your existing JWT_KEY in .env}"
+      Jwt__Issuer: "BookMyHome"
+      Jwt__Audience: "BookMyHome.Client"
+    volumes:
+      - uploads-data:/app/wwwroot/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      com.centurylinklabs.watchtower.scope: "nookly"
+
+  client:
+    image: ghcr.io/morina8700/nookly-client:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      api:
+        condition: service_started
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      com.centurylinklabs.watchtower.scope: "nookly"
+
+  watchtower:
+    image: nickfedor/watchtower:latest
+    restart: unless-stopped
+    environment:
+      REPO_USER: "${GHCR_USERNAME:?Set your GitHub username in .env}"
+      REPO_PASS: "${GHCR_TOKEN:?Set a read-packages token in .env}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: ["--label-enable", "--scope", "nookly", "--interval", "300", "--include-restarting"]
+    depends_on:
+      - client
+
+volumes:
+  db-data:
+  uploads-data:
