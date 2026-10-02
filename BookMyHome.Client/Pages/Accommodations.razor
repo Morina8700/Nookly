@@ -4,6 +4,7 @@
 @using BookMyHome.Client.Services
 
 @inject AccommodationService AccommodationService
+@inject HttpClient Http
 
 <header class="page-header">
     <div>
@@ -160,12 +161,9 @@ private async Task ClearFilters()
         await ApplyFilters();
     }
 
-    private static string GetImageUrl(string imageUrl)
+private string GetImageUrl(string imageUrl)
 {
-    if (imageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-        return imageUrl;
-
-    return $"https://localhost:7096{imageUrl}";
+    return new Uri(Http.BaseAddress!, imageUrl).AbsoluteUri;
 }
 
 public class AccommodationFilters

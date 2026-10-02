@@ -12,7 +12,7 @@ var connectionString =
     builder.Configuration.GetConnectionString("BookMyHome");
 
 builder.Services.AddDbContext<BookMyHomeDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
 
 // Add services to the container.
 
@@ -78,6 +78,15 @@ builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
+
+if (app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<BookMyHomeDbContext>();
+    app.Logger.LogInformation("Applying database migrations before starting the API.");
+    await db.Database.MigrateAsync();
+    app.Logger.LogInformation("Database migrations completed.");
+}
 
 app.UseCors("BlazorClient");
 

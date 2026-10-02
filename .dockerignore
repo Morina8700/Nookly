@@ -1,0 +1,11 @@
+
+.git
+.vs
+**/bin
+**/obj
+.env
+.env.*
+**/secrets.json
+**/secrets.*.json
+*.pem
+*.key
