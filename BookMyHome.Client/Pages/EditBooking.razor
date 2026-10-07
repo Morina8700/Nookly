@@ -61,16 +61,10 @@ else
             </div>
         }
 
-        <button type="submit"
-                class="btn btn-primary">
-            Save Changes
-        </button>
-
-        <button type="button"
-                class="btn btn-secondary ms-2"
-                @onclick="Cancel">
-            Cancel
-        </button>
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
 
     </EditForm></div>
 }

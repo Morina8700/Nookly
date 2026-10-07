@@ -7,35 +7,28 @@
 
 <PageTitle>Home</PageTitle>
 
-<header class="page-header">
-    <div>
-        <h1>Welcome back</h1>
-        <p>Here's an overview of your bookings and accommodations.</p>
+<div class="home-hero">
+    <div class="home-hero-copy">
+        <div class="eyebrow">Stay somewhere worth remembering</div>
+        <h1>Find a place<br />that feels like yours.</h1>
+        <p>Browse thoughtful stays, compare what matters, and make your next trip feel effortless.</p>
+        <a class="btn btn-primary" href="/accommodations">Explore accommodations <span>→</span></a>
     </div>
-</header>
+    <div class="home-hero-art" aria-hidden="true">
+        <div class="home-art-card home-art-card-back"></div>
+        <div class="home-art-card home-art-card-front"><span>N</span></div>
+    </div>
+</div>
 
 <div class="page-body home-body">
-    <div class="summary-grid">
-        <div class="summary-card">
-            <span class="summary-icon">▣</span>
-            <strong>@(bookings?.Count ?? 0)</strong>
-            <span>Bookings</span>
-            <small>your reservations</small>
-        </div>
-        <div class="summary-card">
-            <span class="summary-icon">▤</span>
-            <strong>@(accommodations?.Count ?? 0)</strong>
-            <span>Properties</span>
-            <small>available to book</small>
-        </div>
+    <div class="home-section-heading">
+        <div><div class="eyebrow">Your Nookly</div><h2>Everything in one place</h2></div>
+        <a href="/bookings" class="text-link">View bookings →</a>
     </div>
-
-    <section class="quick-actions">
-        <h2>Quick actions</h2>
-        <p>Jump straight to what you need.</p>
-        <a class="btn btn-primary" href="/bookings/create">＋ New Booking</a>
-        <a class="btn btn-warning ms-2" href="/accommodations">Browse Properties</a>
-    </section>
+    <div class="summary-grid">
+        <div class="summary-card"><span class="summary-icon">▣</span><strong>@(bookings?.Count ?? 0)</strong><span>Bookings</span><small>your reservations</small></div>
+        <div class="summary-card"><span class="summary-icon">▤</span><strong>@(accommodations?.Count ?? 0)</strong><span>Accommodations</span><small>places to discover</small></div>
+    </div>
 </div>
 
 @code {

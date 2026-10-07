@@ -6,17 +6,20 @@
 @inject AccommodationService AccommodationService
 @inject HttpClient Http
 
-<header class="page-header">
+<header class="browse-header">
     <div>
-        <h1>Accommodations</h1>
-        <p>@(accommodations?.Count ?? 0) properties listed</p>
+        <div class="eyebrow">Find your next place</div>
+        <h1>Stays for every kind of trip</h1>
+        <p>@(accommodations?.Count ?? 0) places ready to explore</p>
     </div>
     <a href="/accommodations/create" class="btn btn-primary">＋ Add Property</a>
 </header>
 
 <div class="page-body">
-    <EditForm Model="filters" OnValidSubmit="ApplyFilters">
-        <div class="form-card">
+    <div class="browse-layout">
+        <aside class="filter-panel">
+            <div class="filter-panel-heading"><span>Refine your search</span><button type="button" class="text-button" @onclick="ClearFilters">Clear all</button></div>
+            <EditForm Model="filters" OnValidSubmit="ApplyFilters">
             <div class="field">
                 <label class="form-label">
                     Location
@@ -71,15 +74,15 @@
             </button>
 
             <button type="button"
-                    class="btn btn-secondary ms-2"
+                    class="btn btn-secondary filter-clear"
                     @onclick="ClearFilters">
                 Clear
             </button>
-        </div>
-    </EditForm>
-</div>
+            </EditForm>
+        </aside>
 
-<div class="page-body">
+        <section class="browse-results">
+            <div class="results-heading"><div><strong>Available stays</strong><span>Handpicked for your search</span></div><span class="results-count">@(accommodations?.Count ?? 0) results</span></div>
     @if (accommodations == null)
     {
         <p>Loading...</p>
@@ -107,6 +110,7 @@
                     <div class="property-card-body">
                         <h2>@accommodation.Name</h2>
                         <p class="location">⌖ @accommodation.Address</p>
+                        <p class="property-facts">@accommodation.MaxGuests guests · @accommodation.Bedrooms bedrooms</p>
                         <p>@accommodation.Description</p>
                         <div class="price"><strong>@accommodation.PricePerNight</strong> kr. / night</div>
                     </div>
@@ -114,11 +118,11 @@
                 <div class="property-card-actions">
                         <a class="btn btn-warning"
                            href="@($"/accommodations/edit/{accommodation.AccommodationId}")">
-                            ✎ Edit
+                            Edit
                         </a>
                         <button class="btn btn-danger"
                                 @onclick="() => DeleteAccommodation(accommodation.AccommodationId)">
-                            ▣ Delete
+                            Delete
                         </button>
                 </div>
             </article>
@@ -126,6 +130,8 @@
 
         </div>
     }
+        </section>
+    </div>
 </div>
 
 @code {

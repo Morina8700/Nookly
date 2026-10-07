@@ -1,25 +1,18 @@
 .page {
     min-height: 100vh;
-    display: flex;
+    background: var(--paper);
 }
 
 main {
-    flex: 1;
     min-width: 0;
 }
 
 .sidebar {
-    flex: 0 0 245px;
-    background: #11182b;
+    width: 100%;
 }
 
 .content {
     min-height: 100vh;
     padding: 0;
-    background: #f6f8fb;
-}
-
-@media (max-width: 700px) {
-    .page { display: block; }
-    .sidebar { min-height: auto; }
+    background: var(--paper);
 }
