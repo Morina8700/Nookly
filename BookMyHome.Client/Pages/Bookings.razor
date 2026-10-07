@@ -10,16 +10,16 @@
 
 <header class="page-header">
     <div>
+        <div class="eyebrow">Your trips</div>
         <h1>Bookings</h1>
-        <p> Create a new booking.</p>
-        <p>@(bookings?.Count ?? 0) reservations</p>
+        <p>@(bookings?.Count ?? 0) reservations saved</p>
     </div>
     <a href="/bookings/create" class="btn btn-primary">＋ Create Booking</a>
 </header>
 
 <div class="page-body">
     <EditForm Model="filters" OnValidSubmit="ApplyFilters">
-        <div class="form-card">
+        <div class="form-card filter-card">
             <div class="field">
                 <label class="form-label">
                     Accommodation
@@ -74,7 +74,7 @@
 <div class="page-body">
     @if (bookings == null)
     {
-        <p>Loading...</p>
+        <div class="loading-state">Loading your reservations...</div>
     }
     else if (bookings.Count == 0)
     {

@@ -11,10 +11,11 @@
 }
 else
 {
-    <header class="page-header">
+    <header class="page-header detail-page-header">
         <div>
+            <div class="eyebrow">A place to settle in</div>
             <h1>@accommodation.Name</h1>
-            <p>Accommodation details</p>
+            <p>Everything you need to know before your stay</p>
         </div>
         <button class="btn btn-warning" @onclick="GoBack">Back to accommodations</button>
     </header>
@@ -23,16 +24,21 @@ else
         <article class="detail-card">
             @if (accommodation.Images.Any())
             {
-                <img src="@GetImageUrl(accommodation.Images[currentImageIndex].ImageUrl)"
-                     alt="@accommodation.Name"
-                     class="detail-hero" />
-                @if (accommodation.Images.Count > 1)
-                {
-                    <div class="image-controls">
-                        <button @onclick="PreviousImage" aria-label="Previous image">❮</button>
-                        <button @onclick="NextImage" aria-label="Next image">❯</button>
-                    </div>
-                }
+                <div class="detail-gallery">
+                    <img src="@GetImageUrl(accommodation.Images[currentImageIndex].ImageUrl)" alt="@accommodation.Name" class="detail-hero" />
+                    @if (accommodation.Images.Count > 1)
+                    {
+                        <div class="detail-gallery-strip">
+                            @foreach (var image in accommodation.Images.Take(4))
+                            {
+                                <button class="gallery-thumb" @onclick="() => SelectImage(accommodation.Images.IndexOf(image))">
+                                    <img src="@GetImageUrl(image.ImageUrl)" alt="" />
+                                </button>
+                            }
+                        </div>
+                        <div class="image-controls"><button @onclick="PreviousImage" aria-label="Previous image">←</button><span>@(currentImageIndex + 1) / @accommodation.Images.Count</span><button @onclick="NextImage" aria-label="Next image">→</button></div>
+                    }
+                </div>
             }
             <div class="detail-content">
                 <h1>@accommodation.Name</h1>
@@ -100,6 +106,8 @@ else
         if (accommodation is null || accommodation.Images.Count == 0) return;
         currentImageIndex = (currentImageIndex - 1 + accommodation.Images.Count) % accommodation.Images.Count;
     }
+
+    private void SelectImage(int index) => currentImageIndex = index;
 
     private void GoBack() => NavigationManager.NavigateTo("/accommodations");
 
